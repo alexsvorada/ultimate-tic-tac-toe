@@ -2,13 +2,41 @@
 	import { computed } from 'vue'
 	import { useTicTacToe } from '../composables/useTicTacToe'
 	import TicTacToeSquare from './TicTacToeSquare.vue'
+	import type { SubBoard } from '~/types/ticTacToe'
 
-	const { gameState, currentPlayer, resetGame, makeMove, hoverMove, unhoverMove } = useTicTacToe()
+	const { gameState, currentPlayer, makeMove, hoverMove, unhoverMove, playerCount, isGameFull, playerSymbol, isPlayerTurn } =
+		useTicTacToe()
 
 	const gameStatusMessage = computed(() => {
+		if (isGameFull.value && !playerSymbol.value) return 'Game is full, please try again later'
+		if (playerCount.value < 2) return `Waiting for opponent... (${playerCount.value}/2 players)`
 		if (gameState.value.isDraw) return "It's a draw!"
 		if (gameState.value.winner) return `Player ${gameState.value.winner.symbol} has won the game!`
-		return `It's your turn now, player ${currentPlayer.value.symbol}!`
+
+		return isPlayerTurn.value
+			? `It's your turn! You are ${playerSymbol.value}`
+			: `Waiting for opponent's move... (You are ${playerSymbol.value})`
+	})
+
+	const isGameEnded = computed(() => gameState.value.winner || gameState.value.isDraw)
+
+	const shouldBeActive = (boardId: number) => {
+		const isValidBoard = computed(
+			() =>
+				(gameState.value.activeBoard === null && gameState.value.availableBoards.includes(boardId)) ||
+				gameState.value.activeBoard === boardId
+		)
+
+		return !isGameEnded.value && isValidBoard.value && isPlayerTurn.value
+	}
+
+	const isSquareInActiveBoard = (boardId: number) =>
+		(gameState.value.activeBoard === null || gameState.value.activeBoard === boardId) && isPlayerTurn.value
+
+	const getBoardClasses = (subBoard: SubBoard) => ({
+		active: shouldBeActive(subBoard.id),
+		completed: subBoard.winner || subBoard.isDraw,
+		'preview-active': gameState.value.previewNextBoard.includes(subBoard.id),
 	})
 </script>
 
@@ -17,18 +45,8 @@
 		<h1>Ultimate Tic-Tac-Toe</h1>
 		<h2>{{ gameStatusMessage }}</h2>
 
-		<div class="board">
-			<div
-				v-for="subBoard in gameState.board"
-				:key="subBoard.id"
-				class="sub-board"
-				:class="{
-					active:
-						(gameState.activeBoard === null && gameState.availableBoards.includes(subBoard.id)) ||
-						gameState.activeBoard === subBoard.id,
-					completed: subBoard.winner || subBoard.isDraw,
-					'preview-active': gameState.previewNextBoard.includes(subBoard.id),
-				}">
+		<div v-if="playerCount === 2" class="board">
+			<div v-for="subBoard in gameState.board" :key="subBoard.id" class="sub-board" :class="getBoardClasses(subBoard)">
 				<div v-if="subBoard.winner" class="overlay">
 					{{ subBoard.winner.symbol }}
 				</div>
@@ -39,15 +57,16 @@
 						:owner="square.owner"
 						:hovered="square.hovered"
 						:current-player-symbol="currentPlayer.symbol"
-						:is-in-active-board="gameState.activeBoard === null || gameState.activeBoard === subBoard.id"
+						:is-in-active-board="isSquareInActiveBoard(subBoard.id)"
 						@click="makeMove(subBoard.id, square.id)"
 						@hover="hoverMove(subBoard.id, square.id)"
 						@unhover="unhoverMove(subBoard.id, square.id)" />
 				</div>
 			</div>
 		</div>
-
-		<button class="reset" @click="resetGame">Reset</button>
+		<div v-else class="waiting">
+			<div class="spinner" />
+		</div>
 	</div>
 </template>
 
@@ -128,5 +147,30 @@
 	.reset:hover {
 		background-color: white;
 		color: #333;
+	}
+
+	.waiting {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 400px;
+	}
+
+	.spinner {
+		width: 50px;
+		height: 50px;
+		border: 5px solid #f3f3f3;
+		border-top: 5px solid #333;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
 	}
 </style>

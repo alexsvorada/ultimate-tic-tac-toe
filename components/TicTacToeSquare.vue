@@ -1,28 +1,32 @@
 <script setup lang="ts">
 	import type { Player } from '../types/ticTacToe'
+	import { computed } from 'vue'
 
-	defineProps<{
+	const { owner, currentPlayerSymbol, hovered, isInActiveBoard } = defineProps<{
 		owner: Player | null
 		currentPlayerSymbol: string
 		hovered: boolean
 		isInActiveBoard: boolean
 	}>()
 
-	const emit = defineEmits<{
+	defineEmits<{
 		(e: 'click'): void
 		(e: 'hover'): void
 		(e: 'unhover'): void
 	}>()
+
+	const displaySymbol = computed(() => owner?.symbol || (hovered ? currentPlayerSymbol : ''))
+	const canInteract = computed(() => !owner && isInActiveBoard)
 </script>
 
 <template>
 	<button
 		:class="['square', { clickable: isInActiveBoard }]"
-		@click="!owner && emit('click')"
-		@mouseenter="!owner && emit('hover')"
-		@mouseleave="emit('unhover')">
+		@click="canInteract && $emit('click')"
+		@mouseenter="canInteract && $emit('hover')"
+		@mouseleave="$emit('unhover')">
 		<span :class="{ preview: hovered }">
-			{{ owner?.symbol || (hovered ? currentPlayerSymbol : '') }}
+			{{ displaySymbol }}
 		</span>
 	</button>
 </template>
