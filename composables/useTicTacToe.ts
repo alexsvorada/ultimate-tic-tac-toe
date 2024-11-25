@@ -17,7 +17,7 @@ export function useTicTacToe() {
 
 	const isPlayerTurn = computed(() => playerSymbol.value === currentPlayer.value.symbol)
 
-	const { send } = useWebSocket(`ws://${window.location.host}/api/websocket`, {
+	const { send } = useWebSocket(`wss://${window.location.host}/api/websocket`, {
 		autoReconnect: {
 			retries: 3,
 			delay: 1000,
