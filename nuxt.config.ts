@@ -2,13 +2,15 @@
 export default defineNuxtConfig({
 	compatibilityDate: '2024-11-01',
 	devtools: { enabled: true },
-	css: ['~/app.css'],
 	ssr: false,
 	nitro: {
 		experimental: {
 			websocket: true,
 		},
 	},
+	runtimeConfig: {
+		isDev: process.env.NODE_ENV === 'development',
+	},
 
-	modules: ['@vueuse/nuxt'],
+	modules: ['@vueuse/nuxt', '@nuxtjs/tailwindcss'],
 })

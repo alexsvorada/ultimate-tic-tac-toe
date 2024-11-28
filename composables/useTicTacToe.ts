@@ -17,7 +17,8 @@ export function useTicTacToe() {
 
 	const isPlayerTurn = computed(() => playerSymbol.value === currentPlayer.value.symbol)
 
-	const { send } = useWebSocket(`wss://${window.location.host}/api/websocket`, {
+	const websocketProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+	const { send } = useWebSocket(`${websocketProtocol}//${window.location.host}/api/websocket`, {
 		autoReconnect: {
 			retries: 3,
 			delay: 1000,
@@ -25,16 +26,29 @@ export function useTicTacToe() {
 				console.error('Failed to connect to game server after 3 retries')
 			},
 		},
+
 		onConnected() {
 			console.log('Connected to game server')
+			send(
+				serialize({
+					type: 'JOIN_ROOM',
+					payload: {
+						roomId: window.location.pathname.substring(1),
+					},
+				})
+			)
 		},
+
 		onDisconnected(_, event) {
 			console.log('Disconnected from game server:', event.reason)
 		},
+
 		onError(_, event) {
 			console.error('WebSocket error:', event)
 		},
+
 		onMessage(_, event) {
+			console.log('Received message:', event.data)
 			const data = JSON.parse(event.data) as GameMessage
 
 			switch (data.type) {

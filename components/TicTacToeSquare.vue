@@ -37,16 +37,34 @@
 		height: 48px;
 		display: grid;
 		place-items: center;
-		background-color: #333;
-		border: 1px solid black;
-		transition: background-color 0.3s ease;
+		background-color: rgba(99, 102, 241, 0.1); /* Light indigo background */
+		color: rgb(199, 210, 254); /* Light indigo text */
+		font-weight: 600;
+		font-size: 1.5rem;
+		transition: all 0.3s ease;
 		cursor: default;
 
 		-webkit-tap-highlight-color: transparent;
 		-webkit-touch-callout: none;
 		user-select: none;
+		@apply border border-solid border-indigo-300;
 	}
 
+	.clickable {
+		cursor: pointer;
+	}
+
+	.clickable:hover {
+		background-color: rgba(99, 102, 241, 0.2); /* Slightly darker on hover */
+		border-color: rgba(99, 102, 241, 0.3);
+	}
+
+	.preview {
+		opacity: 0.5;
+		color: rgb(165, 180, 252); /* Lighter color for preview */
+	}
+
+	/* You can keep your media queries as is */
 	@media (max-width: 800px) {
 		.square {
 			width: 40px;
@@ -58,6 +76,7 @@
 		.square {
 			width: 28px;
 			height: 28px;
+			font-size: 1.25rem;
 		}
 	}
 
@@ -65,14 +84,7 @@
 		.square {
 			width: 24px;
 			height: 24px;
+			font-size: 1rem;
 		}
-	}
-
-	.clickable {
-		cursor: pointer;
-	}
-
-	.preview {
-		opacity: 0.5;
 	}
 </style>
