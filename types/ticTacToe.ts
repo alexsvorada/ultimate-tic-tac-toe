@@ -27,14 +27,15 @@ export interface GameState {
 	board: SubBoard[]
 }
 
-export type GameMessageType = 'GAME_STATE_UPDATE' | 'MAKE_MOVE' | 'GAME_FULL' | 'PLAYERS_CONNECTED' | 'PLAYER_ASSIGNED'
+export type GameMessageType = 'GAME_STATE_UPDATE' | 'MAKE_MOVE' | 'GAME_FULL' | 'PLAYERS_CONNECTED' | 'PLAYER_ASSIGNED' | 'JOIN_ROOM'
 
 export interface GameMessage {
 	type: GameMessageType
 	payload: unknown
 }
 
-export interface MovePayload {
+export interface Payload {
+	roomId: string
 	boardId: number
 	squareId: number
 	player: Symbol
